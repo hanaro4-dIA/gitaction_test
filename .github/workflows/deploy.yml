@@ -9,16 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
-
     steps:
       - name: Github Repository 파일 불러오기
         uses: actions/checkout@v4
@@ -37,11 +27,6 @@ jobs:
 
       - name: 테스트 및 빌드하기
         run: ./gradlew clean build
-        env:
-            SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/diadb
-            SPRING_DATASOURCE_USERNAME: root
-            SPRING_DATASOURCE_PASSWORD: 1234
-
 
 
       - name: 빌드된 파일 이름 변경하기
