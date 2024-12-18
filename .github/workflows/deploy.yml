@@ -40,14 +40,14 @@ jobs:
           source: project.jar
           target: /home/ubuntu/dia-server/tobe
 
-      - name: SCP로 application.yml 파일 전송하기
+      - name: SCP로 application.properties 파일 전송하기
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: ./src/main/resources/application.properties
-          target: /home/ubuntu/dia-server/config
+          target: /home/ubuntu/dia-server/config/application.properties
 
       - name: SSH로 EC2에 접속하기
         uses: appleboy/ssh-action@v1.0.3
