@@ -1,12 +1,20 @@
 package com.dia.dia_be.controller.pb;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dia.dia_be.dto.pb.journalDTO.RequestJournalDTO;
+import com.dia.dia_be.dto.pb.productDTO.ResponseProductDTO;
 import com.dia.dia_be.service.pb.intf.PbJournalService;
+import com.dia.dia_be.service.pb.intf.PbProductService;
 import com.dia.dia_be.service.pb.intf.PbReserveService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,10 +29,12 @@ public class PbJournalController {
 
 	private final PbJournalService pbJournalService;
 	private final PbReserveService pbReserveService;
+	private final PbProductService pbProductService;
 
-	public PbJournalController(PbJournalService pbJournalService, PbReserveService pbReserveService) {
+	public PbJournalController(PbJournalService pbJournalService, PbReserveService pbReserveService, PbProductService pbProductService) {
 		this.pbJournalService = pbJournalService;
 		this.pbReserveService = pbReserveService;
+		this.pbProductService = pbProductService;
 	}
 
 	@GetMapping()
@@ -74,4 +84,45 @@ public class PbJournalController {
 			return ResponseEntity.status(500).body(e.getMessage());
 		}
 	}
+
+	@PostMapping()
+	@Tag(name = "상담 일지 저장하기", description = "상담 일지 임시 저장 API")
+	@Operation(summary = "상담 일지 임시 저장")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "요청에 성공하였습니다.",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "요청에 실패했습니다.")
+	})
+	public void saveJournal(@RequestBody RequestJournalDTO body){
+		pbJournalService.addJournal(body);
+	}
+
+	@PostMapping("/transfer")
+	@Tag(name = "상담 일지 저장하기", description = "상담 일지 전송 API")
+	@Operation(summary = "상담 일지 저장 및 전송 상태 변경")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "요청에 성공하였습니다.",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "요청에 실패했습니다.")
+	})
+	public void transferJournal(@RequestBody RequestJournalDTO body){
+			pbJournalService.addJournalAndChangeStatusComplete(body);
+	}
+
+	@GetMapping("/products")
+	@Tag(name = "상담 일지 작성 중 태그 기반 상품 검색", description = "상품 검색 API")
+	@Operation(summary = "태그 기반 상품 검색")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "요청에 성공하였습니다.",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "요청에 실패했습니다.")
+	})
+	public ResponseEntity<?> getProducts(@RequestParam String tag){
+		try{
+			return ResponseEntity.ok(pbProductService.getProducts(tag));
+		} catch (Exception e){
+			return ResponseEntity.status(500).body(e.getMessage());
+		}
+	}
+
 }
